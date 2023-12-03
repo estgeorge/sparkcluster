@@ -1,0 +1,89 @@
+version: '3.9'
+
+services: 
+
+  node-master:
+    container_name: node-master
+    image: sparkcluster 
+    tty: true 
+    command: /home/${SYS_USERNAME}/spark/bin/spark-class org.apache.spark.deploy.master.Master -h node-master 
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER: ${SYS_USERNAME} 
+        PASS: ${SYS_PASSWORD}     
+    volumes:
+      - ./kafka/c.json:/home/${SYS_USERNAME}/kafka/connect/debezium-connector-postgres/cursospark.json    
+      - ./data:/home/${SYS_USERNAME}/data:rw
+      - ./kafka/connect-standalone.properties:/home/${SYS_USERNAME}/kafka/config/connect-standalone.properties
+      - ./kafka/server.properties:/home/${SYS_USERNAME}/kafka/config/kraft/server.properties 
+      - ./kafka/connect-file-sink.properties:/home/${SYS_USERNAME}/kafka/config/connect-file-sink.properties 
+      - ./kafka/connect-file-source.properties:/home/${SYS_USERNAME}/kafka/config/connect-file-source.properties
+    ports:
+      - 8080:8080 
+      - 7077:7077
+    networks:
+       minha-rede:
+           ipv4_address: ${IP_NODEMASTER}
+  
+  node: 
+    deploy:
+      mode: replicated
+      replicas: ${NODE_REPLICAS}   
+    depends_on:
+      - node-master
+    image: sparkcluster
+    tty: true
+    volumes:
+      - ./data:/home/${SYS_USERNAME}/data:rw         
+    command: /home/${SYS_USERNAME}/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://node-master:7077 -m 1024M -c 2 
+    networks:    
+      - minha-rede 
+
+  db:
+    container_name: db
+    hostname: postgres-db
+    image: postgres:15.2
+    tty: true
+    restart: unless-stopped
+    environment:
+      - PGUSER=${PSQL_PGUSER}
+      - PGPASSWORD=${PSQL_PGPASSWORD}
+      - PGDATA=/postgres/data
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_DB=${PSQL_DBNAME}
+      - POSTGRES_USER=${PSQL_PGUSER}
+      - POSTGRES_PASSWORD=${PSQL_PGPASSWORD}
+    ports:
+      - "5432:5432/tcp" 
+    networks:
+      minha-rede:
+        ipv4_address: ${IP_DB}
+    volumes: 
+      - ./postgres/apps:/postgres/apps
+      - postgres-db:/postgres/data
+      - ./postgres/postgresql.conf:/postgres/conf/postgresql.conf
+      - ./postgres/pg_hba.conf:/postgres/conf/pg_hba.conf
+      - ./postgres/set_sql_permission.sh:/docker-entrypoint-initdb.d/set_sql_permission.sh
+    command: postgres -c config_file=/postgres/conf/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      start_period: 3s
+      interval: 1s
+      timeout: 3s
+      retries: 2      
+    
+networks:
+  minha-rede:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${IP_RANGE}
+
+volumes:
+  postgres-db: 
+
+
+
