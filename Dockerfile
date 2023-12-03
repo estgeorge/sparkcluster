@@ -33,6 +33,10 @@ RUN tar -xf spark-3.5.0-bin-hadoop3.tgz
 RUN rm spark-3.5.0-bin-hadoop3.tgz
 RUN mv spark-3.5.0-bin-hadoop3 ${SPARK_HOME}
 
+# instala drive postgree
+RUN wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+RUN mv postgresql-42.6.0.jar ${MYDIR}/spark/jars
+
 # instala kafka
 ENV KAFKA_HOME "${MYDIR}/kafka"
 RUN wget -nc https://downloads.apache.org/kafka/3.4.1/kafka_2.12-3.4.1.tgz
@@ -50,8 +54,6 @@ RUN echo "vazio" > ~/kafka/connect/debezium-connector-postgres/cursospark.json
 RUN echo 'export PATH="$PATH:$KAFKA_HOME/bin"' >> ~/.bashrc 
 RUN echo 'export PATH="$PATH:$SPARK_HOME/bin"' >> ~/.bashrc 
 
-
-
-
-
+RUN mkdir "${MYDIR}/bin"
+COPY data/runkafka.sh /usr/bin/
 
