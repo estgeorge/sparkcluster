@@ -8,6 +8,10 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("ERROR")
 
+print("----------------------------------------------------------------")
+print("Executando o job")
+print("----------------------------------------------------------------")
+
 df = spark \
     .readStream \
     .format("kafka") \
@@ -39,7 +43,7 @@ dx = df.selectExpr("CAST(value AS STRING)") \
 #    .format("console") \
 #    .option("truncate", False) \
 #    .start() \
-#    .awaitTermination()    
+#    .awaitTermination()
 
 def salva_postgresql(df, epoch_id):
     df.write.jdbc(

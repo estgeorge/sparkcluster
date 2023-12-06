@@ -11,18 +11,18 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        USER: ${SYS_USERNAME} 
-        PASS: ${SYS_PASSWORD}     
+        USER: ${SYS_USERNAME}
+        PASS: ${SYS_PASSWORD}
     volumes:
-      - ./kafka/c.json:/home/${SYS_USERNAME}/kafka/connect/debezium-connector-postgres/cursospark.json    
+    #  - ./kafka/c.json:/home/${SYS_USERNAME}/kafka/connect/debezium-connector-postgres/cursospark.json    
       - ./data:/home/${SYS_USERNAME}/data:rw
       - ./kafka/connect-standalone.properties:/home/${SYS_USERNAME}/kafka/config/connect-standalone.properties
       - ./kafka/server.properties:/home/${SYS_USERNAME}/kafka/config/kraft/server.properties 
       - ./kafka/connect-file-sink.properties:/home/${SYS_USERNAME}/kafka/config/connect-file-sink.properties 
       - ./kafka/connect-file-source.properties:/home/${SYS_USERNAME}/kafka/config/connect-file-source.properties
     ports:
-      - 8080:8080 
-      - 7077:7077
+      - 7077:7077 
+      - 8081:8081 
     networks:
        minha-rede:
            ipv4_address: ${IP_NODEMASTER}
@@ -37,7 +37,7 @@ services:
     tty: true
     volumes:
       - ./data:/home/${SYS_USERNAME}/data:rw         
-    command: /home/${SYS_USERNAME}/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://node-master:7077 -m 1024M -c 2 
+    command: /home/${SYS_USERNAME}/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://node-master:7077 -m 1024M -c 1 
     networks:    
       - minha-rede 
 
