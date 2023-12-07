@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Para o topico do kafka antigo e cria um novo topico
-#${KAFKA_HOME}/bin/kafka-topics.sh --bootstrap-server node-master:9092 --delete --topic jsonlines
-#${KAFKA_HOME}/bin/kafka-topics.sh --bootstrap-server node-master:9092 --create --topic jsonlines
-
-
 # Apaga a tabela antiga e cria uma nova tabela
 psql postgres://postgres:spark@postgres-db:5432/engdados << EOF
 DROP TABLE IF EXISTS tempo;

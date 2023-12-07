@@ -7,9 +7,9 @@ ENV PASSWORD=${PASSWORD}
 
 RUN apt-get update -qq 
 RUN apt-get install -qq --no-install-recommends \
-    sudo vim curl wget openjdk-11-jdk-headless \
-    python3.10-minimal python3-pip \
-    postgresql-client < /dev/null > /dev/null
+    sudo wget openjdk-11-jdk-headless postgresql-client \
+    python3.10-minimal python3-pip < /dev/null > /dev/null
+RUN sudo pip install requests
 
 # Clear apt cache and lists to reduce size
 RUN apt clean && rm -rf /var/lib/apt/lists/* 

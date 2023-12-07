@@ -60,4 +60,6 @@ def salva_postgresql(df, epoch_id):
 ds = dx.writeStream \
     .foreachBatch(salva_postgresql) \
     .start() \
-    .awaitTermination() 
+    .awaitTermination()
+
+

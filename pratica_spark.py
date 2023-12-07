@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from textwrap import dedent
 from airflow import DAG
 from airflow.operators.bash import BashOperator 
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 
 with DAG(
     "pratica_spark",
@@ -87,25 +87,25 @@ with DAG(
         data_fim = data_inicio + timedelta(days=1)
         data_inicio = data_inicio.strftime('%Y-%m-%d')
         data_fim = data_fim.strftime('%Y-%m-%d')
-        key = 'digite a key aqui'
+        key = 'digite a key'
         jsonlines_source = "/home/faraday/praticaspark/data/jsonlines_source.txt"
 
-        for city in cities: 
-            print(city)
-            URL = join("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/",
-                       f"{urllib.parse.quote(city)}/{data_inicio}/{data_fim}?unitGroup=metric&include=days&key={key}&contentType=json")
-            f = urlopen(URL)
-            jsonString = f.read()
-            tempo = student_details = json.loads(jsonString)
-            day = tempo['days'][0]
-            sel = {k: day.get(k, None) for k in ('datetime', 'tempmax', 'tempmin', 'humidity')}
-            sel['city'] = city
-            f = open(jsonlines_source, "a")
-            f.writelines(json.dumps(sel,ensure_ascii=False)+"\n")
-            f.close()    
-            time.sleep(3)        
-        
-        
+        for i in range(1):
+            for city in cities:
+                print(city)
+                URL = join("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/",
+                    f"{urllib.parse.quote(city)}/{data_inicio}/{data_fim}?unitGroup=metric&include=days&key={key}&contentType=json")
+                f = urlopen(URL)
+                jsonString = f.read()
+                tempo = student_details = json.loads(jsonString)
+                day = tempo['days'][0]
+                sel = {k: day.get(k, None) for k in ('datetime', 'tempmax', 'tempmin', 'humidity')}
+                sel['city'] = city
+                f = open(jsonlines_source, "a")
+                f.writelines(json.dumps(sel,ensure_ascii=False)+"\n")
+                f.close()    
+                time.sleep(5)
+	       
     t7 = PythonOperator(
         task_id='download_temperatura',
         python_callable=temperatura)        

@@ -13,8 +13,7 @@ services:
       args:
         USER: ${SYS_USERNAME}
         PASS: ${SYS_PASSWORD}
-    volumes:
-    #  - ./kafka/c.json:/home/${SYS_USERNAME}/kafka/connect/debezium-connector-postgres/cursospark.json    
+    volumes:  
       - ./data:/home/${SYS_USERNAME}/data:rw
       - ./kafka/connect-standalone.properties:/home/${SYS_USERNAME}/kafka/config/connect-standalone.properties
       - ./kafka/server.properties:/home/${SYS_USERNAME}/kafka/config/kraft/server.properties 
@@ -67,12 +66,21 @@ services:
       - ./postgres/pg_hba.conf:/postgres/conf/pg_hba.conf
       - ./postgres/set_sql_permission.sh:/docker-entrypoint-initdb.d/set_sql_permission.sh
     command: postgres -c config_file=/postgres/conf/postgresql.conf
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      start_period: 3s
-      interval: 1s
-      timeout: 3s
-      retries: 2      
+  
+  #mongo:
+  #  container_name: mongo
+  #  image: mongo:7.0
+  #  hostname: mongo
+  #  restart: always
+  #  ports:
+  #    - 27017:27017    
+  #  environment:
+  #    MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT}
+  #    MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+  #    MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+  #  networks:
+  #    minha-rede:
+  #      ipv4_address: ${IP_MONGO}      
     
 networks:
   minha-rede:
